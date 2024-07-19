@@ -1,0 +1,22 @@
+{
+  "name": "guildy-project",
+  "version": "1.0.0",
+  "description": "Guildy é um RPG de browser de fantasia medieval onde os jogadores criam personagens únicos e completam missões em uma guilda de aventureiros.",
+  "main": "./backend/server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node ./backend/server.js",
+    "dev": "node --env-file=./backend/src/configs/.env --watch ./backend/server.js"
+  },
+  "type": "module",
+  "keywords": [],
+  "author": "Daniel Chaves <danielchavesfa@hotmail.com>",
+  "license": "ISC",
+  "dependencies": {
+    "bcrypt": "^5.1.1",
+    "express": "^4.19.2",
+    "jsonwebtoken": "^9.0.2",
+    "mysql2": "^3.10.3",
+    "sequelize": "^6.37.3"
+  }
+}
