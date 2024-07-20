@@ -1,6 +1,8 @@
 import { DataTypes } from 'sequelize';
 import sqlConnection from '../database/sqlConnection.js';
-import User from './User.js';
+import Characteristic from './Characteristic.js';
+import Skill from './Skill.js';
+import Inventory from './Inventory.js';
 
 const Character = sqlConnection.define('character', {
   nickname: {
@@ -32,5 +34,9 @@ const Character = sqlConnection.define('character', {
     type: DataTypes.STRING,
   },
 });
+
+Character.hasOne(Characteristic, { foreignKey: 'characterId', onDelete: 'CASCADE' });
+Character.hasOne(Skill, { foreignKey: 'characterId', onDelete: 'CASCADE' });
+Character.hasOne(Inventory, { foreignKey: 'characterId', onDelete: 'CASCADE' });
 
 export default Character;
