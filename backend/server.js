@@ -3,6 +3,7 @@ import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
 import mainRoutes from './src/routes/mainRoutes.js';
+import userRoutes from './src/routes/userRoutes.js';
 import sqlConnection from './src/database/sqlConnection.js';
 import User from './src/models/User.js';
 import Character from './src/models/Character.js';
@@ -20,9 +21,10 @@ server.use(express.urlencoded({ extended: true }));
 server.use(express.static(resolve('./src/public')));
 
 server.use(mainRoutes);
+server.use('/user', userRoutes);
 
 sqlConnection
-  .sync()
+  .sync({ logging: false })
   .then(() => {
     server.listen(PORT, console.log(`Server running at port: ${PORT}`));
   })
