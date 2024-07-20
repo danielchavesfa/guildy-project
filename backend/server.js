@@ -1,3 +1,4 @@
+import { resolve } from 'path';
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -16,6 +17,7 @@ server.use(cors());
 server.use(helmet());
 server.use(express.json());
 server.use(express.urlencoded({ extended: true }));
+server.use(express.static(resolve('./src/public')));
 
 server.use(mainRoutes);
 
