@@ -1,7 +1,10 @@
 import User from '../models/User.js';
-import bcrypt from 'bcrypt';
-import jwt from 'jsonwebtoken';
 import validator from 'validator';
+import {
+  confirmIfIsSamePassword,
+  generateEncryptedPassword,
+} from '../helpers/handleEncryptedPassword.js';
+import { getToken } from '../helpers/handleTokens.js';
 
 export default class UserController {
   static async create(req, res) {
@@ -35,25 +38,56 @@ export default class UserController {
         return res.status(422).json({ message: 'Email já em uso' });
       }
 
-      const saltRounds = Number(process.env.SALT);
-      const salt = await bcrypt.genSalt(saltRounds);
-      const encryptedPassword = await bcrypt.hash(password, salt);
+      const encryptedPassword = await generateEncryptedPassword(password);
 
       const newUser = {
         email,
         password: encryptedPassword,
       };
       const newUserAdded = await User.create(newUser, { raw: true });
-
-      const JWTSecret = String(process.env.JWT_SECRET);
-      const token = jwt.sign(
-        { id: newUserAdded.id, email: newUserAdded.email },
-        JWTSecret
-      );
+      const token = getToken({ id: newUserAdded.id, email: newUserAdded.email });
 
       res.status(201).json({ message: 'Conta criada', token });
     } catch (error) {
       console.error('An error occurred when trying to create a new user:', error);
+      res.status(500).json({ message: error.message });
+    }
+  }
+
+  static async login(req, res) {
+    try {
+      const { email, password } = req.body;
+
+      if (!email) {
+        return res.status(422).json({ message: 'Email obrigatório' });
+      }
+
+      if (!validator.isEmail(email)) {
+        return res.status(422).json({ message: 'Email inválido' });
+      }
+
+      if (!password) {
+        return res.status(422).json({ message: 'Senha obrigatória' });
+      }
+
+      const user = await User.findOne({ where: { email }, raw: true });
+
+      if (!user) {
+        return res.status(404).json({ message: 'Email ou senha inválidos' });
+      }
+
+      const isSamePassword = await confirmIfIsSamePassword(password, user.password);
+      const isSamePasswordAndSameEmail = isSamePassword && email === user.email;
+
+      if (!isSamePasswordAndSameEmail) {
+        return res.status(422).json({ message: 'Email ou senha inválidos' });
+      }
+
+      const token = getToken({ email: user.email });
+
+      res.status(200).json({ message: 'ok', token });
+    } catch (error) {
+      console.error('An error occurred when trying to login:', error);
       res.status(500).json({ message: error.message });
     }
   }
